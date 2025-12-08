@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-import type { UserRecord } from "@/lib/db";
+import type { UserRecord } from "@/lib/types";
 import { isRoastMode } from "@/lib/auth-utils";
 
 interface AuthState {
@@ -27,4 +27,3 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
-

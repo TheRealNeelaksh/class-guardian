@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { loginAction } from "./actions";
+import { loginAction, type LoginResult } from "./actions";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,7 +47,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await loginAction(normalizedEmail, pin);
+      const result: LoginResult = await loginAction(normalizedEmail, pin);
 
       if (!result.ok) {
         setError(result.error ?? "Could not sign in. Please try again.");
@@ -132,4 +132,3 @@ export default function LoginPage() {
     </section>
   );
 }
-

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-import { getDb, type ToneMode } from "@/lib/db";
-import { similarityScore } from "@/lib/levenshtein";
-import { useAuthStore } from "@/lib/stores/auth-store";
+import { checkSimilarityAction } from "./check-similarity";
 import { signupAction, type SignupResult } from "./actions";
+import type { ToneMode } from "@/lib/types";
+import { useAuthStore } from "@/lib/stores/auth-store";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PIN_REGEX = /^\d{4}$/;
@@ -62,25 +62,26 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      const db = getDb();
-      const existing = await db.users.where("email").equals(normalizedEmail).first();
+      const similarityResult = await checkSimilarityAction(normalizedEmail);
 
-      if (existing) {
-        setError("This email is already linked to an account. Log in instead.");
-        return;
-      }
-
-      const users = await db.users.toArray();
-      const similar = users.find((user) => similarityScore(normalizedEmail, user.email) > 75);
-
-      if (similar) {
-        setSimilarEmail(similar.email);
+      if (similarityResult.hasSimilar) {
+        setSimilarEmail(similarityResult.similarEmail);
         setPendingUser({ email: normalizedEmail, pin, toneMode });
         setShowSimilarityModal(true);
+        setIsSubmitting(false);
         return;
       }
 
-      await finalizeSignup({ email: normalizedEmail, pin, toneMode });
+      const signupResult = await signupAction(normalizedEmail, pin, toneMode);
+
+      if (!signupResult.ok) {
+        setError(signupResult.error);
+        return;
+      }
+
+      setUser(signupResult.user);
+      setStatus("Account created. Redirecting...");
+      router.push("/onboarding");
     } catch (err) {
       console.error(err);
       setError("Could not complete signup. Please try again.");
@@ -94,23 +95,18 @@ export default function SignupPage() {
     pin: pinValue,
     toneMode: selectedTone,
   }: PendingUser) => {
-    const result: SignupResult = await signupAction(normalizedEmail, pinValue, selectedTone);
-
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-
-    setUser(result.user);
-    setStatus("Account created. Redirecting...");
-    router.push("/onboarding");
-  };
-
-  const handleContinueAnyway = async () => {
-    if (!pendingUser) return;
     setIsSubmitting(true);
     try {
-      await finalizeSignup(pendingUser);
+      const result: SignupResult = await signupAction(normalizedEmail, pinValue, selectedTone);
+
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+
+      setUser(result.user);
+      setStatus("Account created. Redirecting...");
+      router.push("/onboarding");
     } catch (err) {
       console.error(err);
       setError("Could not complete signup. Please try again.");
@@ -118,6 +114,11 @@ export default function SignupPage() {
       setShowSimilarityModal(false);
       setIsSubmitting(false);
     }
+  };
+
+  const handleContinueAnyway = async () => {
+    if (!pendingUser) return;
+    await finalizeSignup(pendingUser);
   };
 
   const handleLoginInstead = () => {
@@ -246,7 +247,8 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={handleContinueAnyway}
-                className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                disabled={isSubmitting}
+                className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-70"
               >
                 Continue Anyway
               </button>
@@ -257,4 +259,3 @@ export default function SignupPage() {
     </section>
   );
 }
-
