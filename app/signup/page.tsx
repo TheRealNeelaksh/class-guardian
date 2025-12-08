@@ -134,14 +134,17 @@ export default function SignupPage() {
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border p-6 shadow-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm backdrop-blur"
+      >
         <div className="space-y-2">
           <label className="text-sm font-medium">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
             required
             autoComplete="email"
             placeholder="you@example.com"
@@ -154,7 +157,7 @@ export default function SignupPage() {
             type="checkbox"
             checked={enableConfirm}
             onChange={(e) => setEnableConfirm(e.target.checked)}
-            className="h-4 w-4 rounded border"
+            className="h-4 w-4 rounded border border-border/60 bg-background/60 text-primary focus:ring-2 focus:ring-primary/30 focus-visible:outline-none"
           />
           <label htmlFor="enableConfirm" className="text-sm text-muted-foreground">
             Add email confirmation
@@ -168,7 +171,7 @@ export default function SignupPage() {
               type="email"
               value={confirmEmail}
               onChange={(e) => setConfirmEmail(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
               autoComplete="email"
             />
           </div>
@@ -183,7 +186,7 @@ export default function SignupPage() {
             maxLength={4}
             value={pin}
             onChange={(e) => setPin(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
             placeholder="••••"
             required
           />
@@ -194,7 +197,7 @@ export default function SignupPage() {
           <select
             value={toneMode}
             onChange={(e) => setToneMode(e.target.value as ToneMode)}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
           >
             <option value="standard">Standard</option>
             <option value="roast">Roast</option>
@@ -211,7 +214,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 hover:shadow-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting ? "Working..." : "Continue"}
         </button>
