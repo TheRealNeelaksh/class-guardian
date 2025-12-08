@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { loginAction, type LoginResult } from "./actions";
-import { isRoastMode, useAuthStore } from "@/lib/stores/auth-store";
+import { loginAction } from "./actions";
+import { useAuthStore } from "@/lib/stores/auth-store";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -22,11 +22,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     const presetEmail = searchParams?.get("email");
-    if (presetEmail) {
-      setEmail(presetEmail);
-    } else {
-      setEmail("");
-    }
+    setEmail(presetEmail ?? "");
   }, [searchParams]);
 
   const normalizeEmail = (value: string) => value.trim().toLowerCase();
@@ -51,10 +47,15 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const result: LoginResult = await loginAction(normalizedEmail, pin);
+      const result = await loginAction(normalizedEmail, pin);
 
       if (!result.ok) {
-        setError(result.error);
+        setError(result.error ?? "Could not sign in. Please try again.");
+        return;
+      }
+
+      if (!result.user) {
+        setError("Could not sign in. Please try again.");
         return;
       }
 
@@ -128,3 +129,4 @@ export default function LoginPage() {
     </section>
   );
 }
+

@@ -4,11 +4,13 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 import type { UserRecord } from "@/lib/db";
+import { isRoastMode } from "@/lib/auth-utils";
 
 interface AuthState {
   user: UserRecord | null;
   setUser: (user: UserRecord) => void;
   clearUser: () => void;
+  isRoastMode: typeof isRoastMode;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -17,6 +19,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: null }),
+      isRoastMode,
     }),
     {
       name: "classguard-auth",
@@ -25,7 +28,3 @@ export const useAuthStore = create<AuthState>()(
   ),
 );
 
-export function isRoastMode(user: UserRecord | null | undefined): boolean {
-  if (!user) return false;
-  return user.toneMode === "roast";
-}

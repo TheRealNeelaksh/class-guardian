@@ -1,16 +1,10 @@
 "use server";
 
 import { compare } from "bcryptjs";
-
 import { getDb } from "@/lib/db";
+import { isRoastMode } from "@/lib/auth-utils";
 
-import type { UserRecord } from "@/lib/db";
-
-export type LoginResult =
-  | { ok: true; user: UserRecord }
-  | { ok: false; error: string };
-
-export async function loginAction(email: string, pin: string): Promise<LoginResult> {
+export async function loginAction(email: string, pin: string) {
   const normalizedEmail = email.trim().toLowerCase();
   const db = getDb();
 
@@ -23,8 +17,14 @@ export async function loginAction(email: string, pin: string): Promise<LoginResu
   const isMatch = await compare(pin, user.pinHash);
 
   if (!isMatch) {
-    return { ok: false, error: "Incorrect PIN." };
+    return { 
+      ok: false, 
+      error: isRoastMode(user) 
+        ? "Bruh. You forgot your own PIN?" 
+        : "Wrong PIN. Try again." 
+    };
   }
 
   return { ok: true, user };
 }
+

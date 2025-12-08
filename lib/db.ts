@@ -31,3 +31,4 @@ export function getDb(): AppDatabase {
   }
   return dbInstance;
 }
+

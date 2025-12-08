@@ -1,6 +1,5 @@
 "use client";
 
-import { hash } from "bcryptjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -8,6 +7,7 @@ import { useState, type FormEvent } from "react";
 import { getDb, type ToneMode } from "@/lib/db";
 import { similarityScore } from "@/lib/levenshtein";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { signupAction, type SignupResult } from "./actions";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PIN_REGEX = /^\d{4}$/;
@@ -89,26 +89,19 @@ export default function SignupPage() {
     }
   };
 
-  const finalizeSignup = async ({ email: normalizedEmail, pin: pinValue, toneMode: selectedTone }: PendingUser) => {
-    const db = getDb();
-    const hashed = await hash(pinValue, 10);
-    const createdAt = Date.now();
+  const finalizeSignup = async ({
+    email: normalizedEmail,
+    pin: pinValue,
+    toneMode: selectedTone,
+  }: PendingUser) => {
+    const result: SignupResult = await signupAction(normalizedEmail, pinValue, selectedTone);
 
-    const id = await db.users.add({
-      email: normalizedEmail,
-      pinHash: hashed,
-      createdAt,
-      toneMode: selectedTone,
-    });
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
 
-    setUser({
-      id,
-      email: normalizedEmail,
-      pinHash: hashed,
-      createdAt,
-      toneMode: selectedTone,
-    });
-
+    setUser(result.user);
     setStatus("Account created. Redirecting...");
     router.push("/onboarding");
   };
@@ -261,3 +254,4 @@ export default function SignupPage() {
     </section>
   );
 }
+

@@ -30,3 +30,4 @@ export function similarityScore(a: string, b: string): number {
   const longest = Math.max(a.length, b.length) || 1;
   return Math.round(((longest - distance) / longest) * 100);
 }
+
