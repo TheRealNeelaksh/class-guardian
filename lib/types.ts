@@ -7,3 +7,4 @@ export interface UserRecord {
   createdAt: Date | number;
   toneMode: ToneMode;
 }
+

@@ -27,3 +27,4 @@ export async function checkSimilarityAction(email: string): Promise<SimilarityCh
     return { hasSimilar: false };
   }
 }
+

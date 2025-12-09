@@ -31,3 +31,4 @@ export function similarityScore(a: string, b: string): number {
   return Math.round(((longest - distance) / longest) * 100);
 }
 
+
