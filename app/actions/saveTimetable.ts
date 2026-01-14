@@ -16,12 +16,14 @@ interface SaveTimetableParams {
     userId: string;
     rows: ValidRow[];
     subjectMapping: Record<string, string>;
+    replace?: boolean;
 }
 
 export async function saveTimetable({
     userId,
     rows,
     subjectMapping,
+    replace = false,
 }: SaveTimetableParams) {
     if (!userId) {
         return { success: false, error: 'User ID is required' };
@@ -29,6 +31,32 @@ export async function saveTimetable({
 
     try {
         await prisma.$transaction(async (tx) => {
+            if (replace) {
+                // Delete existing entries for this user
+                // We need to find entries linked to timeslots created by this user
+                // OR just delete entries where the user is the owner of the timeslot?
+                // Actually, entries don't have createdById. TimeSlots do.
+                // TimetableEntry -> TimeSlot -> User
+
+                // First delete entries
+                await tx.timetableEntry.deleteMany({
+                    where: {
+                        timeSlot: {
+                            createdById: userId
+                        }
+                    }
+                });
+
+                // Then delete TimeSlots
+                await tx.timeSlot.deleteMany({
+                    where: {
+                        createdById: userId
+                    }
+                });
+
+                // Subjects? We should KEEP subjects as they are the user's "vocabulary".
+            }
+
             // 1. Create/Find Subjects
             const subjectMap = new Map<string, string>(); // NewName -> SubjectId
 

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Save, Loader2, Calendar } from 'lucide-react';
 import { saveTimetable } from '@/app/actions/saveTimetable';
+import { hasTimetable } from '@/app/actions/checkTimetable';
 
 // CSS Color Map for subjects/types
 const TYPE_COLORS = {
@@ -59,7 +60,23 @@ export default function PreviewTimetablePage() {
     const displayMax = Math.ceil(actualMax / 60) * 60;
     const totalDisplayMin = displayMax - displayMin;
 
-    const handleSave = async () => {
+    const [showConfirmReplace, setShowConfirmReplace] = useState(false);
+
+    const handleInitialSave = async () => {
+        if (!user) return;
+        setIsSaving(true);
+        // Check if user has existing timetable
+        const exists = await hasTimetable(user.id);
+        if (exists) {
+            setShowConfirmReplace(true);
+            setIsSaving(false);
+        } else {
+            executeSave(false);
+        }
+    };
+
+    // Logic extracted to separate function
+    const executeSave = async (replace: boolean) => {
         if (!user) return;
         setIsSaving(true);
         setError(null);
@@ -76,7 +93,8 @@ export default function PreviewTimetablePage() {
             const result = await saveTimetable({
                 userId: user.id,
                 rows: rows,
-                subjectMapping
+                subjectMapping,
+                replace
             });
 
             if (result.success) {
@@ -88,11 +106,45 @@ export default function PreviewTimetablePage() {
             setError("An unexpected error occurred.");
         } finally {
             setIsSaving(false);
+            setShowConfirmReplace(false);
         }
     };
 
+    // Original handleSave is deprecated in favor of executeSave/handleInitialSave flow
+    // Removing old handleSave...
+
+    /* 
+    const handleSave = async () => { ... } // REMOVED
+    */
+
     return (
-        <div className="min-h-screen flex flex-col items-center bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 overflow-hidden relative">
+
+            {/* Confirmation Modal */}
+            {showConfirmReplace && (
+                <div className="absolute inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-xl max-w-sm w-full border border-neutral-200 dark:border-neutral-800 space-y-4">
+                        <h3 className="text-lg font-bold text-red-600 dark:text-red-400">Replace Existing Timetable?</h3>
+                        <p className="text-neutral-600 dark:text-neutral-400">
+                            You already have a saved timetable. Importing/Saving this new one will <strong>permanently replace</strong> your existing schedule.
+                        </p>
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={() => setShowConfirmReplace(false)}
+                                className="flex-1 px-4 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 font-medium hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => executeSave(true)}
+                                className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors"
+                            >
+                                Replace
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Header */}
             <div className="w-full flex justify-between items-center p-6 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 sticky top-0 z-50">
@@ -116,7 +168,7 @@ export default function PreviewTimetablePage() {
                         Edit
                     </button>
                     <button
-                        onClick={handleSave}
+                        onClick={handleInitialSave}
                         disabled={isSaving}
                         className="px-6 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
                     >

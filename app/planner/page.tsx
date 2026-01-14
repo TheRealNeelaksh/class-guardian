@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getTimetable, TimetableData } from '@/app/actions/getTimetable';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { Calendar, PenLine, Loader2, ArrowRight } from 'lucide-react';
+import { Calendar, PenLine, Loader2, ArrowRight, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 // CSS Color Map (Duplicate of Preview for now, extract shared component later?)
@@ -38,6 +38,60 @@ export default function PlannerPage() {
       });
     }
   }, [user]);
+
+  const handleDownloadCSV = () => {
+    if (!timetable.length) return;
+
+    // Header
+    let csvContent = "day,type,start_time,end_time,subject\n";
+
+    // Deduplication Set for Time Ranges
+    const validDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    const processedRanges: Record<string, { start: number; end: number }[]> = {};
+    validDays.forEach(d => processedRanges[d] = []);
+
+    // Sort rows by Day -> Start Time (ASC) -> End Time (DESC)
+    // This prioritizes larger blocks over smaller ones starting at the same time
+    const sortedRows = [...timetable].sort((a, b) => {
+      const dayDiff = validDays.indexOf(a.day) - validDays.indexOf(b.day);
+      if (dayDiff !== 0) return dayDiff;
+
+      const startDiff = a.startTime.localeCompare(b.startTime);
+      if (startDiff !== 0) return startDiff;
+
+      return b.endTime.localeCompare(a.endTime);
+    });
+
+    sortedRows.forEach(row => {
+      const startMin = timeToMin(row.startTime);
+      const endMin = timeToMin(row.endTime);
+
+      // Check collision with already processed ranges for this day
+      const hasOverlap = processedRanges[row.day].some(range => {
+        // Standard interval intersection check: StartA < EndB && StartB < EndA
+        return startMin < range.end && range.start < endMin;
+      });
+
+      if (!hasOverlap) {
+        // Escape subject if contains commas
+        const subject = row.subject.includes(',') ? `"${row.subject}"` : row.subject;
+        csvContent += `${row.day},${row.type},${row.startTime},${row.endTime},${subject}\n`;
+
+        // Mark this range as occupied
+        processedRanges[row.day].push({ start: startMin, end: endMin });
+      }
+    });
+
+    // Trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "classguard_timetable.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Handle initial auth load delay
   if (!user) {
@@ -89,6 +143,13 @@ export default function PlannerPage() {
         >
           <PenLine className="w-4 h-4" />
           Edit Timetable
+        </button>
+        <button
+          onClick={handleDownloadCSV}
+          className="ml-2 text-sm font-medium px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-700 transition-all flex items-center gap-2"
+          title="Export as CSV"
+        >
+          <Download className="w-4 h-4" />
         </button>
       </div>
 

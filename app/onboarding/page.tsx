@@ -64,23 +64,21 @@ export default async function OnboardingPage() {
             </div>
           </Link>
 
-          {/* Secondary Action: Import from CSV (Disabled style) */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-left relative overflow-hidden opacity-75 grayscale hover:grayscale-0 transition-all cursor-not-allowed">
+          {/* Secondary Action: Import from CSV */}
+          <Link
+            href="/onboarding/import"
+            className="group p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-left relative overflow-hidden hover:border-neutral-400 dark:hover:border-neutral-600 transition-all"
+          >
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center shrink-0">
-                <Upload className="w-5 h-5 text-neutral-500" />
+              <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center shrink-0 group-hover:bg-neutral-200 dark:group-hover:bg-neutral-800 transition-colors">
+                <Upload className="w-5 h-5 text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-neutral-700 dark:text-neutral-300">Import from CSV</h3>
-                <span className="inline-block mt-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
-                  Pause for Upgrades
-                </span>
+                <h3 className="text-lg font-bold text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-white">Import Timetable (CSV)</h3>
+                <p className="text-sm opacity-80 mt-1 text-neutral-500">Upload a timetable CSV previously exported from this app.</p>
               </div>
             </div>
-            <div className="mt-4 text-xs text-neutral-400 dark:text-neutral-500 border-t border-neutral-100 dark:border-neutral-800/50 pt-3">
-              CSV upload is currently disabled in favor of manual creation correctness.
-            </div>
-          </div>
+          </Link>
 
         </div>
 
