@@ -10,6 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -17,8 +18,62 @@ model User {
   toneMode  String
   createdAt DateTime @default(now())
 
+  subjects  Subject[]
+  timeSlots TimeSlot[]
+  
   @@map("users")
 }
 
+model Subject {
+  id          String   @id @default(cuid())
+  name        String
+  rawAliases  String   // Stored as JSON string or comma separated if array not supported fully in sqlite easily, but Prisma supports String[] in SQLite now (with limitations, usually maps to JSON tables or similar handling). Actually SQLite doesn't natively support arrays. Prisma simulates it or we can use JSON. 
+                       // Wait, Prisma SQLite connector DOES NOT support scalar lists (String[]). 
+                       // I should check if I can use a separate model or just comma-separated string / JSON. 
+                       // For simplicity given the prompt "rawAliases String[]", I should try it but if it fails I'll use a JSON string or relation.
+                       // Safest for SQLite (often used in local dev) is often a relation or a simply formatted string.
+                       // However, let's try to stick to the prompt's `String[]` and see if Prisma handles it (it usually errors on SQLite).
+                       // Actually, standardizing: I'll use a comma separated string or a dedicated model for aliases if strictly relational, but for this "rawAliases", a simple String field storing JSON is better if arrays aren't supported. 
+                       // Let me check my knowledge: SQLite + Prisma => No scalar lists.
+                       // I will use `rawAliases String` and treat it as a JSON string in app logic, OR just create a relation `SubjectAlias`.
+                       // The prompt asked for `rawAliases String[]`. I'll use a serialized string to keep it simple as a single column, or better:
+                       // `rawAliases String` (and I'll JSON.stringify it).
+                       // Let's name it `rawAliasesJson` to be clear, or just `rawAliases` type String.
+                       // Wait, I can also look at the existing `schema.prisma` to see if there are other arrays. None.
+                       // I will implement it as `rawAliases String` (Serialized JSON) for now to avoid SQLite limitations.
 
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  
+  timetableEntries TimetableEntry[]
 
+  @@map("subjects")
+}
+
+model TimeSlot {
+  id        String   @id @default(cuid())
+  label     String
+  order     Int
+  
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  timetableEntries TimetableEntry[]
+
+  @@map("time_slots")
+}
+
+model TimetableEntry {
+  id        String   @id @default(cuid())
+  day       String   // "Monday", etc.
+  
+  timeSlotId String
+  timeSlot   TimeSlot @relation(fields: [timeSlotId], references: [id])
+  
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  
+  type      String   @default("THEORY") // THEORY | LAB
+
+  @@map("timetable_entries")
+}

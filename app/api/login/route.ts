@@ -41,7 +41,7 @@ export async function POST(req: Request) {
             );
         }
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             ok: true,
             user: {
                 id: user.id,
@@ -50,6 +50,17 @@ export async function POST(req: Request) {
                 createdAt: user.createdAt.getTime(),
             },
         });
+
+        // Set HTTP-only cookie for middleware auth
+        response.cookies.set('userId', user.id, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+        });
+
+        return response;
     } catch (err) {
         console.error("Login API error:", err);
         return NextResponse.json(

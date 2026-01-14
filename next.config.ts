@@ -5,7 +5,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 const config: NextConfig = {
   experimental: {
-    serverActions: true,
+    // serverActions is enabled by default in recent Next.js versions
   },
   // Ensure consistent manifest handling, especially in production
   output: isProd ? "standalone" : undefined,

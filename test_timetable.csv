@@ -1,0 +1,15 @@
+day,type,start_time,end_time,subject
+MON,THEORY,08:00,08:50,Computer Architecture and Organization
+MON,THEORY,09:00,09:50,Design and Analysis of Algorithms
+MON,FREE,10:00,10:50,
+MON,THEORY,11:00,11:50,Probability and Statistics
+MON,FREE,12:00,12:50,
+MON,LAB,14:00,14:50,Web Programming Lab
+MON,THEORY,16:00,16:50,Quantitative Skills Practice II
+TUE,THEORY,08:00,08:50,Probability and Statistics
+TUE,THEORY,10:00,10:50,Theory of Computation
+TUE,THEORY,11:00,11:50,Microprocessors and Microcontrollers
+TUE,LAB,14:00,14:50,Microprocessors and Microcontrollers Lab
+WED,THEORY,08:00,08:50,Microprocessors and Microcontrollers
+WED,THEORY,09:00,09:50,Computer Architecture and Organization
+FRI,THEORY,08:00,08:50,Theory of Computation
