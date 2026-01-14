@@ -47,7 +47,17 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const result: LoginResult = await loginAction(normalizedEmail, pin);
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          pin,
+        }),
+      });
+
+      const result = await res.json();
+
 
       if (!result.ok) {
         setError(result.error ?? "Could not sign in. Please try again.");
@@ -132,4 +142,6 @@ export default function LoginPage() {
     </section>
   );
 }
+
+
 
