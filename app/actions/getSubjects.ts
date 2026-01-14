@@ -16,7 +16,7 @@ export async function getUserSubjects(userId: string) {
             distinct: ['name']
         });
 
-        return subjects.map(s => s.name);
+        return subjects.map((s: { name: string }) => s.name);
     } catch (error) {
         console.error("Failed to fetch subjects:", error);
         return [];

@@ -61,6 +61,17 @@ export default function PreviewTimetablePage() {
     const totalDisplayMin = displayMax - displayMin;
 
     const [showConfirmReplace, setShowConfirmReplace] = useState(false);
+    const [pendingReplace, setPendingReplace] = useState(false); // Track if user agreed to replace, for the rename redirect flow
+
+    // Use a ref to store if we checked subjects to avoid double-fetching if not needed? 
+    // Actually, simple flow: 
+    // 1. User Clicks "Save & Finish"
+    // 2. Check if Timetable Exists
+    //    YES -> Show "Confirm Replace" Modal -> User Clicks "Replace" -> Go to Step 3
+    //    NO -> Go to Step 3
+    // 3. Check for Unknown Subjects
+    //    YES -> Redirect to /rename-subjects
+    //    NO -> Execute Save Immediately
 
     const handleInitialSave = async () => {
         if (!user) return;
@@ -71,7 +82,50 @@ export default function PreviewTimetablePage() {
             setShowConfirmReplace(true);
             setIsSaving(false);
         } else {
-            executeSave(false);
+            // No existing timetable, proceed to check subjects directly
+            checkSubjectsAndSave(false);
+        }
+    };
+
+    const handleConfirmReplace = () => {
+        setShowConfirmReplace(false);
+        checkSubjectsAndSave(true);
+    };
+
+    const checkSubjectsAndSave = async (replace: boolean) => {
+        setIsSaving(true);
+        try {
+            // Import dynamically to avoid top-level server action issues in client components if any
+            const { getUserSubjects } = await import('@/app/actions/getUserSubjects');
+            const existingSubjects = await getUserSubjects(user!.id);
+
+            // Extract CSV subjects
+            const csvSubjects = new Set(rows.map(r => r.subject).filter(s => s)); // Filter nulls
+
+            // Find unknowns (Case-sensitive check? Logic says "Raw subject labels are candidates")
+            // We compare exact strings.
+            const unknowns: string[] = [];
+            csvSubjects.forEach(s => {
+                if (s && !existingSubjects.includes(s)) {
+                    unknowns.push(s);
+                }
+            });
+
+            if (unknowns.length > 0) {
+                // Must Rename
+                router.push('/onboarding/rename-subjects');
+                // Note: The rename page needs to know if "replace" was intended. 
+                // Currently rename page re-checks `hasTimetable` and assumes replace if exists.
+                // This is safe because if we are here, we are saving a new timetable.
+            } else {
+                // All known, save directly
+                executeSave(replace);
+            }
+
+        } catch (e) {
+            console.error(e);
+            setError("Failed to validate subjects.");
+            setIsSaving(false);
         }
     };
 
@@ -136,7 +190,7 @@ export default function PreviewTimetablePage() {
                                 Cancel
                             </button>
                             <button
-                                onClick={() => executeSave(true)}
+                                onClick={handleConfirmReplace}
                                 className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors"
                             >
                                 Replace
