@@ -1,20 +1,31 @@
-export default function TodayPage() {
+import { getTodayData } from '@/app/actions/attendanceActions';
+import { hasSemester } from '@/app/actions/checkSemester';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import TodayClient from './TodayClient';
+
+export default async function TodayPage() {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get('classguard-userid')?.value;
+
+  if (userId) {
+    const has = await hasSemester(userId);
+    if (!has) {
+      redirect('/onboarding/semester-setup');
+    }
+  }
+
+  // If userId is missing, getTodayData returns safe empty structure.
+  // Ideally, we redirect to login or handle it.
+  // The app architecture relies on Middleware or client handling for login, 
+  // but if we are here we should have ID. 
+  // Passing safely.
+
+  const data = await getTodayData(userId || '');
+
   return (
-    <section className="space-y-6">
-      <header className="space-y-1">
-        <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
-          Daily briefing
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight">Today</h1>
-        <p className="text-muted-foreground">
-          A focused view for urgent classes, tasks, and quick wins. Widgets, cards, and alerts
-          will land here in later phases.
-        </p>
-      </header>
-      <div className="rounded-2xl border border-dashed border-muted-foreground/30 p-6 text-muted-foreground">
-        Daily metrics and reminders placeholder.
-      </div>
-    </section>
+    <div className="h-full bg-background flex flex-col overflow-hidden">
+      <TodayClient data={data} />
+    </div>
   );
 }
-

@@ -35,6 +35,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -49,11 +51,11 @@ export default function RootLayout({
           geistMono.variable,
         )}
       >
-        <div className="flex min-h-screen flex-col">
-          <main className="flex-1">
-            <div className="container flex-1 py-8">{children}</div>
+        <div className="flex h-screen flex-col overflow-hidden">
+          <main className="flex-1 overflow-hidden">
+            {children}
           </main>
-          <nav className="border-t bg-background/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <nav className="border-t bg-background/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 shrink-0 z-50">
             <div className="container flex items-center justify-between gap-2 text-xs font-medium sm:text-sm">
               {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
                 <Link
@@ -69,6 +71,7 @@ export default function RootLayout({
             </div>
           </nav>
         </div>
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );

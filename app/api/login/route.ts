@@ -5,7 +5,7 @@ import { isRoastMode } from "@/lib/auth-utils";
 
 export async function POST(req: Request) {
     try {
-        const { email, pin } = await req.json();
+        const { email, pin, rememberMe } = await req.json();
 
         if (!email || !pin) {
             return NextResponse.json(
@@ -52,13 +52,19 @@ export async function POST(req: Request) {
         });
 
         // Set HTTP-only cookie for middleware auth
-        response.cookies.set('userId', user.id, {
+        const cookieOptions: any = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-        });
+        };
+
+        if (rememberMe) {
+            cookieOptions.maxAge = 60 * 60 * 24 * 30; // 30 days
+        }
+        // If not rememberMe, no maxAge => session cookie
+
+        response.cookies.set('userId', user.id, cookieOptions);
 
         return response;
     } catch (err) {

@@ -126,137 +126,139 @@ export default function SignupPage() {
   };
 
   return (
-    <section className="space-y-8">
-      <header className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Create account</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Sign up</h1>
-        <p className="text-muted-foreground">
-          Secure your account with a 4-digit PIN. Keep it memorable.
-        </p>
-      </header>
+    <div className="container py-8 h-full overflow-y-auto">
+      <section className="space-y-8 max-w-lg mx-auto pt-10 sm:pt-20">
+        <header className="space-y-2">
+          <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Create account</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Sign up</h1>
+          <p className="text-muted-foreground">
+            Secure your account with a 4-digit PIN. Keep it memorable.
+          </p>
+        </header>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6 rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm backdrop-blur"
-      >
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
-            required
-            autoComplete="email"
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            id="enableConfirm"
-            type="checkbox"
-            checked={enableConfirm}
-            onChange={(e) => setEnableConfirm(e.target.checked)}
-            className="h-4 w-4 rounded border border-border/60 bg-background/60 text-primary focus:ring-2 focus:ring-primary/30 focus-visible:outline-none"
-          />
-          <label htmlFor="enableConfirm" className="text-sm text-muted-foreground">
-            Add email confirmation
-          </label>
-        </div>
-
-        {enableConfirm && (
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm backdrop-blur"
+        >
           <div className="space-y-2">
-            <label className="text-sm font-medium">Confirm Email</label>
+            <label className="text-sm font-medium">Email</label>
             <input
               type="email"
-              value={confirmEmail}
-              onChange={(e) => setConfirmEmail(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
+              required
               autoComplete="email"
+              placeholder="you@example.com"
             />
           </div>
-        )}
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">PIN (4 digits)</label>
-          <input
-            type="password"
-            inputMode="numeric"
-            pattern="\d{4}"
-            maxLength={4}
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
-            placeholder="••••"
-            required
-          />
-        </div>
+          <div className="flex items-center gap-2">
+            <input
+              id="enableConfirm"
+              type="checkbox"
+              checked={enableConfirm}
+              onChange={(e) => setEnableConfirm(e.target.checked)}
+              className="h-4 w-4 rounded border border-border/60 bg-background/60 text-primary focus:ring-2 focus:ring-primary/30 focus-visible:outline-none"
+            />
+            <label htmlFor="enableConfirm" className="text-sm text-muted-foreground">
+              Add email confirmation
+            </label>
+          </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Tone mode</label>
-          <select
-            value={toneMode}
-            onChange={(e) => setToneMode(e.target.value as ToneMode)}
-            className="w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
-          >
-            <option value="standard">Standard</option>
-            <option value="roast">Roast</option>
-            <option value="auto">Auto</option>
-          </select>
-          <p className="text-xs text-muted-foreground">
-            Choose how playful or direct your messages should be.
-          </p>
-        </div>
+          {enableConfirm && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Confirm Email</label>
+              <input
+                type="email"
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
+                className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
+                autoComplete="email"
+              />
+            </div>
+          )}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        {status && <p className="text-sm text-emerald-600">{status}</p>}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">PIN (4 digits)</label>
+            <input
+              type="password"
+              inputMode="numeric"
+              pattern="\d{4}"
+              maxLength={4}
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
+              placeholder="••••"
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 hover:shadow-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isSubmitting ? "Working..." : "Continue"}
-        </button>
-
-        <p className="text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="font-medium text-primary hover:underline">
-            Log in
-          </Link>
-        </p>
-      </form>
-
-      {showSimilarityModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-lg">
-            <h3 className="text-lg font-semibold">Similar account detected</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              A similar account exists ({similarEmail ?? "another email"}). Are you sure you&apos;re
-              not trying to log in instead?
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Tone mode</label>
+            <select
+              value={toneMode}
+              onChange={(e) => setToneMode(e.target.value as ToneMode)}
+              className="w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 hover:border-primary/50"
+            >
+              <option value="standard">Standard</option>
+              <option value="roast">Roast</option>
+              <option value="auto">Auto</option>
+            </select>
+            <p className="text-xs text-muted-foreground">
+              Choose how playful or direct your messages should be.
             </p>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={handleLoginInstead}
-                className="rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
-              >
-                Log in Instead
-              </button>
-              <button
-                type="button"
-                onClick={handleContinueAnyway}
-                disabled={isSubmitting}
-                className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-70"
-              >
-                Continue Anyway
-              </button>
+          </div>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {status && <p className="text-sm text-emerald-600">{status}</p>}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 hover:shadow-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isSubmitting ? "Working..." : "Continue"}
+          </button>
+
+          <p className="text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link href="/login" className="font-medium text-primary hover:underline">
+              Log in
+            </Link>
+          </p>
+        </form>
+
+        {showSimilarityModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-lg">
+              <h3 className="text-lg font-semibold">Similar account detected</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                A similar account exists ({similarEmail ?? "another email"}). Are you sure you&apos;re
+                not trying to log in instead?
+              </p>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={handleLoginInstead}
+                  className="rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
+                >
+                  Log in Instead
+                </button>
+                <button
+                  type="button"
+                  onClick={handleContinueAnyway}
+                  disabled={isSubmitting}
+                  className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-70"
+                >
+                  Continue Anyway
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </section>
+        )}
+      </section>
+    </div>
   );
 }
 

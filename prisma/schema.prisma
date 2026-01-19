@@ -18,10 +18,69 @@ model User {
   toneMode  String
   createdAt DateTime @default(now())
 
-  subjects  Subject[]
-  timeSlots TimeSlot[]
+  subjects       Subject[]
+  timeSlots      TimeSlot[]
+  semesters      Semester[]
+  classInstances ClassInstance[]
   
   @@map("users")
+}
+
+model Semester {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  startDate   DateTime
+  endDate     DateTime
+  minAttendancePct Float @default(75.0)
+  createdAt   DateTime @default(now())
+
+  examBlocks  ExamBlock[]
+  holidays    Holiday[]
+  
+  @@map("semesters")
+}
+
+model ExamBlock {
+  id         String   @id @default(cuid())
+  semesterId String
+  semester   Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  name       String?
+  startDate  DateTime
+  endDate    DateTime
+  
+  @@map("exam_blocks")
+}
+
+model Holiday {
+  id         String   @id @default(cuid())
+  semesterId String
+  semester   Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  name       String?
+  startDate  DateTime
+  endDate    DateTime
+  
+  @@map("holidays")
+}
+
+model ClassInstance {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  
+  date      DateTime
+  startTime DateTime
+  endTime   DateTime
+  status    String   @default("PRESENT") // PRESENT | ABSENT | EXCUSED
+  
+  statusUpdatedAt DateTime?
+  statusUpdatedBy String?
+
+  @@map("class_instances")
+  @@index([userId, date])
 }
 
 model Subject {
@@ -46,6 +105,7 @@ model Subject {
   createdBy   User     @relation(fields: [createdById], references: [id])
   
   timetableEntries TimetableEntry[]
+  classInstances   ClassInstance[]
 
   @@map("subjects")
 }
